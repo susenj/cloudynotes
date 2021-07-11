@@ -94,3 +94,39 @@ To maintain the smooth functioning of the worker nodes and thus the cluster itse
 Kubectl - Single Cloud
 Kubeadm - On-Premise
 Kubefed - Federated
+
+# Kubernetes Objects
+
+Kubernetes uses objects to represent the state of our cluster.
+
+- What containerized applications are running(and on which node).
+- The policies around how those applications behave(restart policities, fault tolerance etc)
+- Once you create the object, the k8s system will constantly tries to ensure that the object exist and maintains cluster's desired state.
+- Every K8s Object includes two nested fields that govern the object config- the object spec(desired) and the object status(actual).
+- All objects are identified by a unique name and a UID
+
+**Basic objects:**
+
+- Pod
+- Service
+- Volume
+- Namespace
+- ReplicaSets
+- Secrets
+- Configmaps
+- Deployment
+- Jobs
+- DaemonSets
+
+**Relationship between these objects**
+
+- Pod manages containers
+- Replicaset manages pods
+- Services expose pod processes to the outside world
+- ConfigMaps and Secrets help us configure pods.
+
+
+**Kubernetes Object Management** 
+
+- Imperative Method: Use `kubectl` CLI - `create, delete, and replace`
+- Declarative Method: Makes use of manifest(.yml/.yaml file). Well suited for production. `kubectl apply` for incremental changes.
