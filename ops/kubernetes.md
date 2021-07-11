@@ -45,12 +45,52 @@ Let's look at the K8s architecture:
 
 # Master(ControlPlane)
 
-- API server : Master's point of contact. Takes all the requests from the nodes and fowards it to the concerned component inside the master.
-- Controller Manager: Monitors and keeps a control on the `Actual state` and the `Desired State `
+To maintain the smooth functioning of the worker nodes and thus the cluster itself.
+- API server : **Master's point of contact**. 
+  * Takes all the requests from the nodes and fowards it to the concerned component inside the master. 
+  * It's a front-end of the control plane. 
+  * The Api server is meant to scale automatically as per the load.
 
+- Controller Manager: Monitors and keeps a control on the `Actual state` and the `Desired State `. If K8s is on cloud, the entity is called as `cloud-controller-manager`. Has multiple sub-components:
+  * Node Controller
+  * Route Controller
+  * Service Controller
+  * Volume Controller
+
+- etcd: **Database**, that stores all the information about all the pods. 
+  * Has metadata and status of the cluster in `key:value` format. 
+  * Consistent and highly available. 
+  * Fully replicated, secure and fast.
+  * It's a separate component, though K8s needs it. API server only can access the etcd. 
+
+- Kube Scheduler: Does the actual ground work as instructed by the API server. Pod creation, has logic on which node the pod has to get created.
+
+- kubectl: **Admin CLI** for the end user that talks to API server.
 
 # Node
-- Kube proxy
-- Kubelet
+
+- Pod: Pod is the smallest unit of K8s- works like a wrapper for our container. Thus, K8s doesn't have to care about which container engine we are using.
+  * No auto healing
+  * No auto scaling - Had it been why would we have needed K8s? ;-)
+- Kubelet: Controls the pods.
+  * It sends the request to API server which in turn sends the information to etcd. This is how the information comes in sync.
+  * Listens to K8s master. 
+  * Sends success/failure reports to the master.
+  * Uses port 10255. 
+
+- Kube proxy: Assigns IP-address to Pods. Container itself doen't get any ip address, but its pod does get one. Pods can't communicate among one another.
+
+- Container Engine: Docker or any other engine which is hosting the image/container.
 
 
+
+# Higher Level Kubernetes Objects
+
+- Replication Set: Auto scaling and Auto Healing
+- Deployment: Versioning and Rollback
+- Service : Create and maintain any service; Statip IP and networking, port sharing etc.
+- Volume: Create the non-ephemeral storage 
+
+Kubectl - Single Cloud
+Kubeadm - On-Premise
+Kubefed - Federated
