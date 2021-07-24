@@ -1,3 +1,5 @@
+# Applying my first .tf file
+
 ``` bash
 susenj@susenj-vbox:~$ terraform validate
 Success! The configuration is valid.
@@ -445,7 +447,64 @@ susenj@susenj-vbox:~$
 We can ssh to the ubuntu instance that we just created and can see the webserver up and running.
 
 ```bash
+neerakum@NEERAKUM-WT4 MINGW64 ~
+$ ssh -i Downloads/app-key-pair.pem ubuntu@65.1.72.225
+load pubkey "Downloads/app-key-pair.pem": invalid format
+The authenticity of host '65.1.72.225 (65.1.72.225)' can't be established.
+ECDSA key fingerprint is SHA256:Ex4E5tDkMGjW6MJkRmFLJhM6G0cXPjzI4O557zYKUtM.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '65.1.72.225' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-1045-aws x86_64)
 
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Sat Jul 24 04:40:28 UTC 2021
+
+  System load:  0.45              Processes:             106
+  Usage of /:   18.7% of 7.69GB   Users logged in:       0
+  Memory usage: 24%               IPv4 address for eth0: 10.0.0.12
+  Swap usage:   0%
+
+93 updates can be applied immediately.
+51 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+ubuntu@ip-10-0-0-12:~$ uname -a
+Linux ip-10-0-0-12 5.4.0-1045-aws #47-Ubuntu SMP Tue Apr 13 07:02:25 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+ubuntu@ip-10-0-0-12:~$ system ctl ^C
+ubuntu@ip-10-0-0-12:~$ systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sat 2021-07-24 04:39:57 UTC; 45s ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 1972 (apache2)
+      Tasks: 55 (limit: 1160)
+     Memory: 5.6M
+     CGroup: /system.slice/apache2.service
+             ├─1972 /usr/sbin/apache2 -k start
+             ├─1974 /usr/sbin/apache2 -k start
+             └─1975 /usr/sbin/apache2 -k start
+
+Jul 24 04:39:57 ip-10-0-0-12 systemd[1]: Starting The Apache HTTP Server...
+Jul 24 04:39:57 ip-10-0-0-12 systemd[1]: Started The Apache HTTP Server.
+
+ubuntu@ip-10-0-0-12:~$ curl localhost
+your very first web server
+ubuntu@ip-10-0-0-12:~$
 ```
 
 Let's check a few commands related to states.
