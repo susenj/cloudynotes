@@ -548,3 +548,538 @@ resource "aws_eip" "eip" {
 }
 susenj@susenj-vbox:~$ 
 ```
+There are times when we want to see the output before we try to apply the .tf file. To do this, create the `output` clause in your.tf file like this:
+
+```HCL
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+# Suppose we want to see the private_ip assigned to the EC2 machine
+output "server_private_ip" {
+  value = aws_instance.neeraj_ubuntu.private_ip
+}
+# And also the server_id, given by the field id
+output "server_id" {
+  value = aws_instance.neeraj_ubuntu.id
+}
+
+# Configure the AWS Provider
+<snip>
+```
+This requires a `terraform refresh`, that will simply refresh the tf and dump the output, if any. We can also use `terraform output` followed by this to see only the output.
+
+```bash
+susenj@susenj-vbox:~$ terraform refresh
+aws_vpc.first-vpc-by-tf: Refreshing state... [id=vpc-0d95568fdf912e865]
+aws_security_group.allow_http: Refreshing state... [id=sg-051839d9aebf72b25]
+aws_security_group.allow_tls: Refreshing state... [id=sg-05268e91e09305646]
+aws_security_group.allow_ssh: Refreshing state... [id=sg-0e5517c14cdb9d215]
+aws_internet_gateway.igw: Refreshing state... [id=igw-0e8a522c3b656912e]
+aws_subnet.subnet-1: Refreshing state... [id=subnet-00cd8b79afcfd260a]
+aws_route_table.rt: Refreshing state... [id=rtb-0bd09d6bf4baeee30]
+aws_network_interface.eni: Refreshing state... [id=eni-0e9d16259acaf4483]
+aws_instance.neeraj_ubuntu: Refreshing state... [id=i-029cc88f298dbfcf4]
+aws_eip.eip: Refreshing state... [id=eipalloc-01ef356fd80f2916a]
+aws_route_table_association.rtas: Refreshing state... [id=rtbassoc-08a0f75cdab14bb66]
+
+Outputs:
+
+server_id = "i-029cc88f298dbfcf4"
+server_private_ip = "10.0.0.12"
+susenj@susenj-vbox:~$ terraform output
+server_id = "i-029cc88f298dbfcf4"
+server_private_ip = "10.0.0.12"
+susenj@susenj-vbox:~$ 
+```
+
+To destroy a single resource instead of all the resources captured in the `.tf` file, simply use the resource name with the `terraform destroy` command with an option `-target`. Let's see this in action.
+
+```bash
+susenj@susenj-vbox:~$ terraform destroy -target aws_instance.neeraj_ubuntu
+aws_vpc.first-vpc-by-tf: Refreshing state... [id=vpc-0d95568fdf912e865]
+aws_security_group.allow_tls: Refreshing state... [id=sg-05268e91e09305646]
+aws_security_group.allow_http: Refreshing state... [id=sg-051839d9aebf72b25]
+aws_security_group.allow_ssh: Refreshing state... [id=sg-0e5517c14cdb9d215]
+aws_subnet.subnet-1: Refreshing state... [id=subnet-00cd8b79afcfd260a]
+aws_network_interface.eni: Refreshing state... [id=eni-0e9d16259acaf4483]
+aws_instance.neeraj_ubuntu: Refreshing state... [id=i-029cc88f298dbfcf4]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # aws_instance.neeraj_ubuntu will be destroyed
+  - resource "aws_instance" "neeraj_ubuntu" {
+      - ami                                  = "ami-0c1a7f89451184c8b" -> null
+      - arn                                  = "arn:aws:ec2:ap-south-1:234534219513:instance/i-029cc88f298dbfcf4" -> null
+      - associate_public_ip_address          = true -> null
+      - availability_zone                    = "ap-south-1b" -> null
+      - cpu_core_count                       = 1 -> null
+      - cpu_threads_per_core                 = 1 -> null
+      - disable_api_termination              = false -> null
+      - ebs_optimized                        = false -> null
+      - get_password_data                    = false -> null
+      - hibernation                          = false -> null
+      - id                                   = "i-029cc88f298dbfcf4" -> null
+      - instance_initiated_shutdown_behavior = "stop" -> null
+      - instance_state                       = "running" -> null
+      - instance_type                        = "t2.micro" -> null
+      - ipv6_address_count                   = 0 -> null
+      - ipv6_addresses                       = [] -> null
+      - key_name                             = "app-key-pair" -> null
+      - monitoring                           = false -> null
+      - primary_network_interface_id         = "eni-0e9d16259acaf4483" -> null
+      - private_dns                          = "ip-10-0-0-12.ap-south-1.compute.internal" -> null
+      - private_ip                           = "10.0.0.12" -> null
+      - public_ip                            = "65.1.72.225" -> null
+      - secondary_private_ips                = [] -> null
+      - security_groups                      = [] -> null
+      - source_dest_check                    = true -> null
+      - subnet_id                            = "subnet-00cd8b79afcfd260a" -> null
+      - tags                                 = {
+          - "Name" = "neerajk-ubuntu-webserver"
+        } -> null
+      - tags_all                             = {
+          - "Name" = "neerajk-ubuntu-webserver"
+        } -> null
+      - tenancy                              = "default" -> null
+      - user_data                            = "a7ae17f62bdeef71e39db6f7b1a8509fa8c0ed01" -> null
+      - vpc_security_group_ids               = [
+          - "sg-051839d9aebf72b25",
+          - "sg-05268e91e09305646",
+          - "sg-0e5517c14cdb9d215",
+        ] -> null
+
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      - credit_specification {
+          - cpu_credits = "standard" -> null
+        }
+
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      - metadata_options {
+          - http_endpoint               = "enabled" -> null
+          - http_put_response_hop_limit = 1 -> null
+          - http_tokens                 = "optional" -> null
+        }
+
+      - network_interface {
+          - delete_on_termination = false -> null
+          - device_index          = 0 -> null
+          - network_interface_id  = "eni-0e9d16259acaf4483" -> null
+        }
+
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/sda1" -> null
+          - encrypted             = false -> null
+          - iops                  = 100 -> null
+          - tags                  = {} -> null
+          - throughput            = 0 -> null
+          - volume_id             = "vol-015ecf44742c98473" -> null
+          - volume_size           = 8 -> null
+          - volume_type           = "gp2" -> null
+        }
+    }
+
+Plan: 0 to add, 0 to change, 1 to destroy.
+╷
+│ Warning: Resource targeting is in effect
+│ 
+│ You are creating a plan with the -target option, which means that the result of this plan may not represent all of the
+│ changes requested by the current configuration.
+│ 		
+│ The -target option is not for routine use, and is provided only for exceptional situations such as recovering from
+│ errors or mistakes, or when Terraform specifically suggests to use it as part of an error message.
+╵
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+aws_instance.neeraj_ubuntu: Destroying... [id=i-029cc88f298dbfcf4]
+aws_instance.neeraj_ubuntu: Still destroying... [id=i-029cc88f298dbfcf4, 10s elapsed]
+aws_instance.neeraj_ubuntu: Still destroying... [id=i-029cc88f298dbfcf4, 20s elapsed]
+aws_instance.neeraj_ubuntu: Still destroying... [id=i-029cc88f298dbfcf4, 30s elapsed]
+aws_instance.neeraj_ubuntu: Destruction complete after 33s
+╷
+│ Warning: Applied changes may be incomplete
+│ 
+│ The plan was created with the -target option in effect, so some changes requested in the configuration may have been
+│ ignored and the output values may not be fully updated. Run the following command to verify that no other changes are
+│ pending:
+│     terraform plan
+│ 	
+│ Note that the -target option is not suitable for routine use, and is provided only for exceptional situations such as
+│ recovering from errors or mistakes, or when Terraform specifically suggests to use it as part of an error message.
+╵
+
+Destroy complete! Resources: 1 destroyed.
+susenj@susenj-vbox:~$ terraform state list # You can see that the aws_instance is gone now. We may verify that in our AWS console too.
+aws_eip.eip
+aws_internet_gateway.igw
+aws_network_interface.eni
+aws_route_table.rt
+aws_route_table_association.rtas
+aws_security_group.allow_http
+aws_security_group.allow_ssh
+aws_security_group.allow_tls
+aws_subnet.subnet-1
+aws_vpc.first-vpc-by-tf
+susenj@susenj-vbox:~$ 
+```
+
+Same thing can work with the terraform apply command if we want to deploy individual resource out of many in the .tf file. Check this out:
+
+```bash
+susenj@susenj-vbox:~$ terraform apply -target aws_instance.neeraj_ubuntu --auto-approve
+aws_vpc.first-vpc-by-tf: Refreshing state... [id=vpc-0d95568fdf912e865]
+aws_subnet.subnet-1: Refreshing state... [id=subnet-00cd8b79afcfd260a]
+aws_security_group.allow_tls: Refreshing state... [id=sg-05268e91e09305646]
+aws_security_group.allow_http: Refreshing state... [id=sg-051839d9aebf72b25]
+aws_security_group.allow_ssh: Refreshing state... [id=sg-0e5517c14cdb9d215]
+aws_network_interface.eni: Refreshing state... [id=eni-0e9d16259acaf4483]
+
+Note: Objects have changed outside of Terraform
+
+Terraform detected the following changes made outside of Terraform since the last "terraform apply":
+
+  # aws_network_interface.eni has been changed
+  ~ resource "aws_network_interface" "eni" {
+        id                 = "eni-0e9d16259acaf4483"
+        tags               = {}
+        # (11 unchanged attributes hidden)
+
+      - attachment {
+          - attachment_id = "eni-attach-04e465d62b2855efe" -> null
+          - device_index  = 0 -> null
+          - instance      = "i-029cc88f298dbfcf4" -> null
+        }
+    }
+
+Unless you have made equivalent changes to your configuration, or ignored the relevant attributes using ignore_changes,
+the following plan may include actions to undo or respond to these changes.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_instance.neeraj_ubuntu will be created
+  + resource "aws_instance" "neeraj_ubuntu" {
+      + ami                                  = "ami-0c1a7f89451184c8b"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = (known after apply)
+      + availability_zone                    = "ap-south-1b"
+      + cpu_core_count                       = (known after apply)
+      + cpu_threads_per_core                 = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "t2.micro"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = "app-key-pair"
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = {
+          + "Name" = "neerajk-ubuntu-webserver"
+        }
+      + tags_all                             = {
+          + "Name" = "neerajk-ubuntu-webserver"
+        }
+      + tenancy                              = (known after apply)
+      + user_data                            = "a7ae17f62bdeef71e39db6f7b1a8509fa8c0ed01"
+      + user_data_base64                     = (known after apply)
+      + vpc_security_group_ids               = (known after apply)
+
+      + capacity_reservation_specification {
+          + capacity_reservation_preference = (known after apply)
+
+          + capacity_reservation_target {
+              + capacity_reservation_id = (known after apply)
+            }
+        }
+
+      + ebs_block_device {
+          + delete_on_termination = (known after apply)
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + snapshot_id           = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = (known after apply)
+        }
+
+      + enclave_options {
+          + enabled = (known after apply)
+        }
+
+      + ephemeral_block_device {
+          + device_name  = (known after apply)
+          + no_device    = (known after apply)
+          + virtual_name = (known after apply)
+        }
+
+      + metadata_options {
+          + http_endpoint               = (known after apply)
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = false
+          + device_index          = 0
+          + network_interface_id  = "eni-0e9d16259acaf4483"
+        }
+
+      + root_block_device {
+          + delete_on_termination = (known after apply)
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = (known after apply)
+        }
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  ~ server_id         = "i-029cc88f298dbfcf4" -> (known after apply)
+  ~ server_private_ip = "10.0.0.12" -> (known after apply)
+aws_instance.neeraj_ubuntu: Creating...
+aws_instance.neeraj_ubuntu: Still creating... [10s elapsed]
+aws_instance.neeraj_ubuntu: Still creating... [20s elapsed]
+aws_instance.neeraj_ubuntu: Still creating... [30s elapsed]
+aws_instance.neeraj_ubuntu: Still creating... [40s elapsed]
+aws_instance.neeraj_ubuntu: Still creating... [50s elapsed]
+aws_instance.neeraj_ubuntu: Creation complete after 50s [id=i-0a88e2cdc976e5c24]
+╷
+│ Warning: Resource targeting is in effect
+│ 
+│ You are creating a plan with the -target option, which means that the result of this plan may not represent all of the
+│ changes requested by the current configuration.
+│ 		
+│ The -target option is not for routine use, and is provided only for exceptional situations such as recovering from
+│ errors or mistakes, or when Terraform specifically suggests to use it as part of an error message.
+╵
+╷
+│ Warning: Applied changes may be incomplete
+│ 
+│ The plan was created with the -target option in effect, so some changes requested in the configuration may have been
+│ ignored and the output values may not be fully updated. Run the following command to verify that no other changes are
+│ pending:
+│     terraform plan
+│ 	
+│ Note that the -target option is not suitable for routine use, and is provided only for exceptional situations such as
+│ recovering from errors or mistakes, or when Terraform specifically suggests to use it as part of an error message.
+╵
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+server_id = "i-0a88e2cdc976e5c24"
+server_private_ip = "10.0.0.12"
+susenj@susenj-vbox:~$ terraform state list
+aws_eip.eip
+aws_instance.neeraj_ubuntu
+aws_internet_gateway.igw
+aws_network_interface.eni
+aws_route_table.rt
+aws_route_table_association.rtas
+aws_security_group.allow_http
+aws_security_group.allow_ssh
+aws_security_group.allow_tls
+aws_subnet.subnet-1
+aws_vpc.first-vpc-by-tf
+susenj@susenj-vbox:~$ 
+```
+
+# Variables in Terraform
+
+```HCL
+variable "subnet_prefix" {
+   description = "cidr block for the subnet"
+   #default     = 
+   #type        = any
+}
+# 4. create a subnet, and use the variable subnet_prefix
+resource "aws_subnet" "subnet-1" {
+  vpc_id     = aws_vpc.first-vpc-by-tf.id
+  #cidr_block = "10.0.0.0/28"
+  cidr_block = var.subnet_prefix
+  availability_zone = "ap-south-1b"
+  tags = {
+    Name = "prod-subnet"
+  }
+}
+
+```
+
+Since, we didn't provide the `cidr_block` value, but still used it as a variable, the `terraform` commands will ask for its value from the user.
+
+```bash
+susenj@susenj-vbox:~$ terraform apply
+var.subnet_prefix
+  cidr block for the subnet
+
+  Enter a value: 10.0.0.0/28
+
+aws_vpc.first-vpc-by-tf: Refreshing state... [id=vpc-0d95568fdf912e865]
+aws_security_group.allow_ssh: Refreshing state... [id=sg-0e5517c14cdb9d215]
+aws_security_group.allow_http: Refreshing state... [id=sg-051839d9aebf72b25]
+aws_security_group.allow_tls: Refreshing state... [id=sg-05268e91e09305646]
+aws_subnet.subnet-1: Refreshing state... [id=subnet-00cd8b79afcfd260a]
+aws_internet_gateway.igw: Refreshing state... [id=igw-0e8a522c3b656912e]
+aws_route_table.rt: Refreshing state... [id=rtb-0bd09d6bf4baeee30]
+aws_network_interface.eni: Refreshing state... [id=eni-0e9d16259acaf4483]
+aws_route_table_association.rtas: Refreshing state... [id=rtbassoc-08a0f75cdab14bb66]
+aws_eip.eip: Refreshing state... [id=eipalloc-01ef356fd80f2916a]
+aws_instance.neeraj_ubuntu: Refreshing state... [id=i-0a88e2cdc976e5c24]
+
+Note: Objects have changed outside of Terraform
+
+Terraform detected the following changes made outside of Terraform since the last "terraform apply":
+
+  # aws_eip.eip has been changed
+  ~ resource "aws_eip" "eip" {
+        id                        = "eipalloc-01ef356fd80f2916a"
+      ~ instance                  = "i-029cc88f298dbfcf4" -> "i-0a88e2cdc976e5c24"
+        tags                      = {}
+        # (12 unchanged attributes hidden)
+    }
+  # aws_network_interface.eni has been changed
+  ~ resource "aws_network_interface" "eni" {
+        id                 = "eni-0e9d16259acaf4483"
+        tags               = {}
+        # (11 unchanged attributes hidden)
+
+      + attachment {
+          + attachment_id = "eni-attach-06368e1914c5fbe8a"
+          + device_index  = 0
+          + instance      = "i-0a88e2cdc976e5c24"
+        }
+    }
+
+Unless you have made equivalent changes to your configuration, or ignored the relevant attributes using ignore_changes,
+the following plan may include actions to undo or respond to these changes.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+No changes. Your infrastructure matches the configuration.
+
+Your configuration already matches the changes detected above. If you'd like to update the Terraform state to match,
+create and apply a refresh-only plan:
+  terraform apply -refresh-only
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+server_id = "i-0a88e2cdc976e5c24"
+server_private_ip = "10.0.0.12"
+susenj@susenj-vbox:~$ 
+```
+We can provide the variable value in the command line as well:
+
+```bash
+susenj@susenj-vbox:~$ terraform apply -var "subnet_prefix=10.0.0.0/28" --auto-approve
+aws_vpc.first-vpc-by-tf: Refreshing state... [id=vpc-0d95568fdf912e865]
+aws_security_group.allow_ssh: Refreshing state... [id=sg-0e5517c14cdb9d215]
+aws_internet_gateway.igw: Refreshing state... [id=igw-0e8a522c3b656912e]
+aws_security_group.allow_tls: Refreshing state... [id=sg-05268e91e09305646]
+aws_subnet.subnet-1: Refreshing state... [id=subnet-00cd8b79afcfd260a]
+aws_security_group.allow_http: Refreshing state... [id=sg-051839d9aebf72b25]
+aws_route_table.rt: Refreshing state... [id=rtb-0bd09d6bf4baeee30]
+aws_network_interface.eni: Refreshing state... [id=eni-0e9d16259acaf4483]
+aws_instance.neeraj_ubuntu: Refreshing state... [id=i-0a88e2cdc976e5c24]
+aws_route_table_association.rtas: Refreshing state... [id=rtbassoc-08a0f75cdab14bb66]
+aws_eip.eip: Refreshing state... [id=eipalloc-01ef356fd80f2916a]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are
+needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+server_id = "i-0a88e2cdc976e5c24"
+server_private_ip = "10.0.0.12"
+susenj@susenj-vbox:~$ 
+```
+
+In reality, we don't generally do these ways of assigning variables, instead we will have `terraform.tfvars` file. Terraform understands it automatically, but if we have created this file with a different name, we just need to supply that file with `-var-file <filename>` option.
+
+```bash
+susenj@susenj-vbox:~$ cat terraform.tfvars 
+subnet_prefix = "10.0.0.0/28"
+susenj@susenj-vbox:~$ terraform apply --auto-approve
+#[Does all the work smoothly, snipping the output]
+```
+We can even have variables defined as a list in the terraform.tfvars file, and to reference them we can use normal array indices. For example:
+
+```bash
+susenj@susenj-vbox:~$ cat terraform.tfvars 
+subnet_prefix = ["10.0.0.0/28", "10.0.1.0/24"]
+susenj@susenj-vbox:~$ grep subnet_prefix aws.tf 
+  cidr_block = var.subnet_prefix[0]
+susenj@susenj-vbox:~$ 
+susenj@susenj-vbox:~$ terraform apply --auto-approve
+#[Does all the work smoothly, snipping the output]
+```
+We can still have the variables defined as list of objects(JSON form):
+
+```HCL
+subnet_prefix = [{cidr_block = "10.0.0.0/28", name = "prod_subnet"}, {cidr_block = "10.0.1.0/24", name = "dev_subnet"}]
+```
+To access them at different places similar to how we do it in Javascript:
+
+```HCL
+var.subnet_prefix[1].cidr_block
+var.subnet_prefix[0].name 
+```
+etc.
+
