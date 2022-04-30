@@ -15,6 +15,7 @@ Sample commands:
 
 ```
 ansible demo -a "sudo yum install httpd -y"
+ansible demo -ba "yum install httpd -y"  # flag -b is for adding sudo implicitly
 ansible demo[-1] -a "df -kh ."
 ansible all -a "free -m"
 ```
@@ -54,3 +55,5 @@ https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.
 Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.
 [ansible@ip-172-31-14-224 ~]$ ls
 ```
+
+Same Ad-hoc commands can run any number of times, and ansible doesn't check if the command has already run successfully earlier. This is one of the disadvantages of ad-hoc.
