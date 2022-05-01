@@ -213,9 +213,100 @@ PLAY RECAP *********************************************************************
 
 [ansible@ip-172-31-14-224 ~]$
 ```
+## Working with loops in the playbook
 
-** How to dryrun the .yml file
+Inside any task, we can use `with_items` keyword that will have the list of items to iterate the task on.
 
+Example:
+
+```YAML
+--- # Playbook showcasing loops
+    # loops.yml
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+    - name: add list of users
+      user: name='{{item}}' state=present
+      with_items:
+        - Neeraj
+        - Rishika
+        - Varun
+        - Rishabh
+        - Jennifer
+```
+
+```
+[ansible@ip-172-31-14-224 ~]$ ansible-playbook loops.yml
+
+PLAY [demo] **********************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************
+[WARNING]: Platform linux on host 172.31.3.202 is using the discovered Python interpreter at
+/usr/bin/python, but future installation of another Python interpreter could change this. See
+https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more
+information.
+ok: [172.31.3.202]
+[WARNING]: Platform linux on host 172.31.4.162 is using the discovered Python interpreter at
+/usr/bin/python, but future installation of another Python interpreter could change this. See
+https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more
+information.
+ok: [172.31.4.162]
+
+TASK [add list of users] *********************************************************************
+changed: [172.31.3.202] => (item=Neeraj)
+changed: [172.31.4.162] => (item=Neeraj)
+changed: [172.31.3.202] => (item=Rishika)
+changed: [172.31.4.162] => (item=Rishika)
+changed: [172.31.4.162] => (item=Varun)
+changed: [172.31.3.202] => (item=Varun)
+changed: [172.31.3.202] => (item=Rishabh)
+changed: [172.31.4.162] => (item=Rishabh)
+changed: [172.31.4.162] => (item=Jennifer)
+changed: [172.31.3.202] => (item=Jennifer)
+
+PLAY RECAP ***********************************************************************************
+172.31.3.202               : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+172.31.4.162               : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+[ansible@ip-172-31-14-224 ~]$
+```
+
+**How to dryrun the .yml file**
+
+use `--check` flag with the `ansible-playbook` CLI. 
+
+Example:
+```
+[ansible@ip-172-31-14-224 ~]$ ansible-playbook handlers.yml --check
+
+PLAY [demo] *******************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************
+[WARNING]: Platform linux on host 172.31.4.162 is using the discovered Python interpreter at /usr/bin/python, but future installation of
+another Python interpreter could change this. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for
+more information.
+ok: [172.31.4.162]
+[WARNING]: Platform linux on host 172.31.3.202 is using the discovered Python interpreter at /usr/bin/python, but future installation of
+another Python interpreter could change this. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for
+more information.
+ok: [172.31.3.202]
+
+TASK [install httpd server on Amazon Linux EMI instances] *********************************************************************************
+changed: [172.31.4.162]
+changed: [172.31.3.202]
+
+RUNNING HANDLER [restart httpd] ***********************************************************************************************************
+changed: [172.31.4.162]
+changed: [172.31.3.202]
+
+PLAY RECAP ********************************************************************************************************************************
+172.31.3.202               : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+172.31.4.162               : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+[ansible@ip-172-31-14-224 ~]$
+```
 
 
 ## Credit and Reference:
