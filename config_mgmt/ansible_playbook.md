@@ -22,7 +22,7 @@ Playbooks are dividen into many sections
 
 ```YAML
 --- # My first Ansible playbook
---- # target.yml
+    # target.yml
 - hosts: demo
   user: ansible
   become: yes
@@ -57,7 +57,7 @@ PLAY RECAP *********************************************************************
 
 ```YAML
 --- # Playbook with a task
---- # task.yml
+    # task.yml
 - hosts: demo
   user: ansible
   become: yes
@@ -105,11 +105,11 @@ for more information.
 httpd: /usr/sbin/httpd /usr/lib64/httpd /etc/httpd /usr/share/httpd /usr/share/man/man8/httpd.8.gz
 [ansible@ip-172-31-14-224 ~]$  
 ```
-## Example of a variable
+## Variables in a playbook
 
 ```YAML
 --- # Another playbook having variables
---- # vars.yml
+    # vars.yml
 
 - hosts: demo
   user: ansible
@@ -158,6 +158,65 @@ for more information.
 httpd: /usr/sbin/httpd /usr/lib64/httpd /etc/httpd /usr/share/httpd /usr/share/man/man8/httpd.8.gz
 [ansible@ip-172-31-14-224 ~]$
 ```
+
+## Handlers in a playbook
+
+A handler is exactly the same as a task but it will run when called by another task. Basically, the handler is a dependent task.
+The dependency is recognized by `notify: <notification message>` keyword.
+
+```YAML
+--- # Handlers demo
+    # handlers.yml
+    #
+
+- hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+    - name: install httpd server on Amazon Linux EMI instances
+      action: yum name=httpd state=present
+      notify: restart httpd
+  handlers:
+    - name: restart httpd
+      action: service name=httpd state=restarted
+```
+Execution: 
+```
+[ansible@ip-172-31-14-224 ~]$ ansible-playbook handlers.yml
+
+PLAY [demo] *********************************************************************************
+
+TASK [Gathering Facts] **********************************************************************
+[WARNING]: Platform linux on host 172.31.4.162 is using the discovered Python interpreter at
+/usr/bin/python, but future installation of another Python interpreter could change this.
+See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for
+more information.
+ok: [172.31.4.162]
+[WARNING]: Platform linux on host 172.31.3.202 is using the discovered Python interpreter at
+/usr/bin/python, but future installation of another Python interpreter could change this.
+See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for
+more information.
+ok: [172.31.3.202]
+
+TASK [install httpd server on Amazon Linux EMI instances] ***********************************
+changed: [172.31.4.162]
+changed: [172.31.3.202]
+
+RUNNING HANDLER [restart httpd] *************************************************************
+changed: [172.31.4.162]
+changed: [172.31.3.202]
+
+PLAY RECAP **********************************************************************************
+172.31.3.202               : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+172.31.4.162               : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+[ansible@ip-172-31-14-224 ~]$
+```
+
+** How to dryrun the .yml file
+
+
 
 ## Credit and Reference:
 https://www.youtube.com/watch?v=uyFrrKju4Es
