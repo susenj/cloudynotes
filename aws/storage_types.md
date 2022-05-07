@@ -36,3 +36,23 @@
 23. Object storage in a s3-bucket in a region will never leave that region unless you specifically move them to another region or CRR
 24. A bucket owner can grant cross-accoutn permission to another AWS account(or users in another account) to upload objects.
 25. You can grant S3 bucket/object permission to- **Individual users** / **AWS account** / **Public** / **all authenticated users**
+
+
+## Elastic Block Store - EBS
+
+**Elastic Block Store V/s Instance Store backed EC2**
+
+**EBS **
+- Persistent
+- Network Attached Vrtual Drive
+- EBS volumes are block storage types. Suitable for database style data that requires frequent read and writes.
+- An EBS volume can only be attached to single EC2 instance at a time.
+- EC2 and EBS should be in the same AZ to get associated with each other.
+- EBS replication will also be done in the same AZ.
+
+**Instance Store Backed EC2**
+- Virtual Hard drive similar to hard disk allocated to VMs on a hypervisor
+- Limited to 10 GB per device
+- Faster than EBS because it's directly attached
+- Non-persistent over termination or stopping. Persistent over reboots only.
+
