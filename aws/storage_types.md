@@ -56,3 +56,12 @@
 - Faster than EBS because it's directly attached
 - Non-persistent over termination or stopping. Persistent over reboots only.
 
+
+**EBS Volume Types**
+|___ > SSD Backed Volume (Bootable volumes, OS can be installed)
+|___ > HDD Backed Volume (Non-bootable volumes)
+|___ > Magnetic Standard (Bootable ones)
+
+**SSD Backed Volumes**
+|___ > General Purpose SSD(gp2) - Default volume if not selected.
+|___ > Provisioned IOPS SSD(io1) - Provides max I/O than all the volumes present so far.
