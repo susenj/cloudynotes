@@ -29,3 +29,16 @@ AWS can do **predictive scaling** too based on historical trends.
 
 10. Unlike AZ rebalancing, termination of unhealthy instances happen first, then Autoscaling attempts to launch new instances to replace the ones terminated.
 11. Elastic IP and EBS volumes get detached from the terminated instances, you need to manually attach them to the new instances.
+
+## Scaling Policies
+
+- Defines how much you want to scale based on defined conditions
+- Autoscaling group uses alarms and policies to determine scaling
+- For **Simple or Step scaling**, a scaling adjustment can't change the capacity of the group above the max group size or below the min group size.
+- **Predictive Scaling** looks at the historic pattern and forecase them into the future to schedule the change in the number of EC2 instances.  It uses machine learning model to forecast daily and weekly patterns.
+- **Target Tracking** Policies - INcrease or decrease the current capcaity of the group based on a target value for a specific metric. This is similar to the way that your thermostat maintains the room temperature.
+- **Step Scaling** - Increase or decrease the current capacity of the group based on a set of scaling adjustment, known as **Step adjustment**, that vary based on the size of the alarm breach. It doesn't support/wait for the **cool-down timer**. However, it does support a **warm-up timer**(The time taken for en EC2 instance to come up and start handlng the load, and contributes to the watched metric)
+
+
+**CoolDown Period** - The period set to avoid new instance get added bsaed on some rule trigger. Beacuse the rule will keep on triggering even if the EC2 instance is added but hasn't contributed in sharing the load. So, the system will wait till the cooldown period to expire and then recheck the rule whether it should trigger or not.
+**Warmup Period** - This is the period upon the expiry of which , the EC2 instance start contributing to the CloudWatch metric.
