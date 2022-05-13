@@ -38,3 +38,14 @@ Example:
 - ns-4112 awsdns-07 .co.in
 
 
+
+## Routing Policies
+
+- **Simple Routing(Default)** - One website - one IP address
+- **Failover Routing** - At least 2 servers(primary and standby). Works only with Publicly hosted zones.
+- **Geo-Location Routing** - Based on countries/ISP - Route location from india to server in India, etc.
+- **Multi Value Answer Routing** - Allocate mutiple IPs for same website. Route53 decides based on latency and other factors to route it.
+- **Latency Based Routing** - Routing strictly based on latency
+- **Weighted Routing** - Customized traffic percentage based routing.
+- **Geo-proximity** - if load increases at one site, the site can be shrunk temporarily and the requests can be served by the other nearest site.
+
